@@ -1,0 +1,25 @@
+name: lsp-python
+
+services:
+  python-lsp:
+    image: docker-lsp-python:latest
+    network_mode: host
+    environment:
+      - USER=python
+      - UID=1000
+      - GROUP=python
+      - GID=1000
+    volumes:
+      - ~/.cache/python-lsp:/home/python/.cache
+      - ~/.config/python-lsp:/home/python/.config
+      - .:/workspace
+    working_dir: /workspace
+    command:
+      - pylsp
+      - --tcp
+      - --port
+      - "2087"
+      - --host
+      - "0.0.0.0"
+    ports:
+      - "2087:2087"
