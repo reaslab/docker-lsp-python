@@ -12,7 +12,7 @@ services:
     volumes:
       - ~/.cache/python-lsp:/home/python/.cache
       - ~/.config/python-lsp:/home/python/.config
-      - .:/workspace
+      - ./workspace:/workspace
     working_dir: /workspace
     command:
       - pylsp

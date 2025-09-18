@@ -8,11 +8,7 @@ RUN groupadd -g 1000 python && \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
-        curl \
-        git \
-        tini \
-        gosu \
-        build-essential && \
+        tini && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装 Python LSP Server
@@ -24,15 +20,10 @@ ENV UID=1000 USER=python \
     PYTHON_VERSION=3.11 \
     LSP_VERSION=latest
 
-# 复制入口脚本
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 # 切换到非 root 用户
 USER python
 
 # 设置工作目录
 WORKDIR /home/python
 
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["pylsp"]

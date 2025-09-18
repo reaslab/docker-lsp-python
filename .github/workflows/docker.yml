@@ -54,9 +54,6 @@ jobs:
           tags: |
             type=raw,value=latest,priority=500
             type=raw,value=${{ github.run_number }},priority=400
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
 
       - name: Build and push Docker image
         id: build-and-push

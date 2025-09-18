@@ -1,12 +1,13 @@
 # docker-lsp-python
 
-基于 Docker 的 Python Language Server Protocol (LSP) 环境，支持多版本 Python 和 Python LSP Server。
+基于 Docker 的 Python Language Server Protocol (LSP) 环境，提供轻量化的 Python LSP Server 容器。
 
 ## 特性
 
 - 基于 Python 3.11 的 Python LSP Server
 - 包含完整的 Python LSP 插件生态
-- 用户和组管理，确保安全的文件权限
+- 最小化系统依赖，轻量化镜像
+- 非 root 用户运行，确保安全性
 - 自动化的 Docker 镜像构建和发布
 - 支持多架构构建（amd64, arm64）
 
@@ -30,16 +31,12 @@ docker run --rm -it ghcr.io/reaslab/docker-lsp-python:latest
 
 ### 环境变量
 
-`entrypoint.sh` 脚本支持以下环境变量：
-
-- `USER`, `GROUP`: 设置容器内的用户名/组名（默认：`python`）
-- `UID`, `GID`: 设置用户/组 ID（默认：1000）
-- `XDG_CACHE_HOME`: 设置自定义缓存目录（默认：`/home/python/.cache`）
+容器支持标准的环境变量配置，如 `PYTHONPATH` 等。
 
 示例：
 
 ```sh
-docker run -e USER=myuser -e UID=1234 ghcr.io/reaslab/docker-lsp-python:latest
+docker run -e PYTHONPATH=/home/python ghcr.io/reaslab/docker-lsp-python:latest
 ```
 
 ### 使用 Docker Compose
@@ -54,13 +51,8 @@ services:
     volumes:
       - ~/.cache/python-lsp:/home/python/.cache
       - ~/.config/python-lsp:/home/python/.config
-      - ./workspace:/workspace
-    working_dir: /workspace
-    environment:
-      - USER=python
-      - UID=1000
-      - GROUP=python
-      - GID=1000
+      - ./workspace:/home/python/workspace
+    working_dir: /home/python/workspace
     command:
       - pylsp
       - --tcp
@@ -92,7 +84,7 @@ docker run --rm -it docker-lsp-python:latest
 
 ### LSP 配置
 
-容器包含默认的 LSP 配置，位于 `/home/python/.config/python-lsp/config.json`。您可以通过挂载卷来自定义配置：
+您可以通过挂载卷来自定义 LSP 配置：
 
 ```sh
 docker run -v /path/to/your/config.json:/home/python/.config/python-lsp/config.json ghcr.io/reaslab/docker-lsp-python:latest
@@ -105,6 +97,12 @@ docker run -v /path/to/your/config.json:/home/python/.config/python-lsp/config.j
 - **代码补全**: jedi
 - **类型检查**: pylint（默认禁用）
 - **其他**: preload, rope
+
+### 系统依赖
+
+镜像包含最小化的系统依赖：
+- `ca-certificates`: SSL 证书支持
+- `tini`: 进程管理器，正确处理信号
 
 ## 自动化构建
 
@@ -123,7 +121,10 @@ docker run -v /path/to/your/config.json:/home/python/.config/python-lsp/config.j
 # 构建镜像
 docker build -t docker-lsp-python:latest .
 
-# 运行容器
+# 运行容器（TCP 模式）
+docker run --rm -p 2087:2087 docker-lsp-python:latest pylsp --tcp --port 2087 --host 0.0.0.0
+
+# 运行容器（交互模式）
 docker run --rm -it docker-lsp-python:latest
 ```
 
