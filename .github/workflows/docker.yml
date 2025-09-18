@@ -67,6 +67,10 @@ jobs:
           tags: |
             type=raw,value=latest,priority=500
             type=raw,value=${{ steps.timestamp.outputs.timestamp }},priority=400
+          flavor: |
+            latest=false
+            prefix=
+            suffix=
 
       - name: Build and push Docker image
         id: build-and-push
