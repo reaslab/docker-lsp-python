@@ -1,5 +1,5 @@
 # 构建阶段
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # 安装构建依赖
 RUN apt-get update && \
