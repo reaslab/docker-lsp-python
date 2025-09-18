@@ -8,6 +8,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: false
+        default: 'linux/amd64,linux/arm64'
+        type: choice
+        options:
+          - linux/amd64,linux/arm64
+          - linux/amd64
 
 env:
   # 使用 docker.io 作为 Docker Hub（如果为空）
@@ -46,6 +55,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate timestamp
+        id: timestamp
+        run: echo "timestamp=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -53,7 +66,10 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,priority=500
-            type=raw,value=${{ github.run_number }},priority=400
+            type=raw,value=${{ steps.timestamp.outputs.timestamp }},priority=400
+            type=raw,value=secure-${{ steps.timestamp.outputs.timestamp }},priority=300
+            type=raw,value=secure-latest,priority=200
+            type=raw,value=main-${{ github.sha }},priority=100
 
       - name: Build and push Docker image
         id: build-and-push
@@ -66,9 +82,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          platforms: linux/amd64, linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          platforms: ${{ github.event.inputs.platform || 'linux/amd64,linux/arm64' }}
+          cache-from: type=gha,scope=build
+          cache-to: type=gha,mode=max,scope=build
 
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@v3

@@ -12,8 +12,8 @@ services:
     volumes:
       - ~/.cache/python-lsp:/home/python/.cache
       - ~/.config/python-lsp:/home/python/.config
-      - ./workspace:/workspace
-    working_dir: /workspace
+      - .:/app
+    working_dir: /app
     command:
       - pylsp
       - --tcp

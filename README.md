@@ -27,7 +27,7 @@ docker run --rm -it ghcr.io/reaslab/docker-lsp-python:latest
 | 镜像标签 | 描述 |
 |----------|------|
 | `latest` | 最新版本（Python 3.11 + 最新 LSP） |
-| `{run_number}` | 构建编号标签（如 `123`） |
+| `{timestamp}` | 构建时间戳标签（如 `20241201-143022`） |
 
 ### 环境变量
 
@@ -36,7 +36,7 @@ docker run --rm -it ghcr.io/reaslab/docker-lsp-python:latest
 示例：
 
 ```sh
-docker run -e PYTHONPATH=/home/python ghcr.io/reaslab/docker-lsp-python:latest
+docker run -e PYTHONPATH=/app ghcr.io/reaslab/docker-lsp-python:latest
 ```
 
 ### 使用 Docker Compose
@@ -51,8 +51,8 @@ services:
     volumes:
       - ~/.cache/python-lsp:/home/python/.cache
       - ~/.config/python-lsp:/home/python/.config
-      - ./workspace:/home/python/workspace
-    working_dir: /home/python/workspace
+      - .:/app
+    working_dir: /app
     command:
       - pylsp
       - --tcp
@@ -111,7 +111,7 @@ docker run -v /path/to/your/config.json:/home/python/.config/python-lsp/config.j
 - **推送构建**: 推送到 main 分支时自动构建
 - **手动构建**: 通过 workflow_dispatch 手动触发
 - **多架构支持**: 同时构建 amd64 和 arm64 架构
-- **标签策略**: `latest` 为最新版本，`{run_number}` 为构建编号
+- **标签策略**: `latest` 为最新版本，`{timestamp}` 为构建时间戳
 
 ## 开发
 
